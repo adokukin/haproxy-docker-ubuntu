@@ -33,13 +33,9 @@ COPY --from=builder /dataplaneapi /usr/local/bin/dataplaneapi
 RUN apt-get update && \
     apt-get install -y --no-install-recommends procps libssl1.1 zlib1g "libpcre2-*" liblua5.3-0 libatomic1 tar curl socat ca-certificates && \
     apt-get install -y --no-install-recommends gcc make libc6-dev libssl-dev libpcre3-dev zlib1g-dev liblua5.3-dev && \
-    curl -sfSL "${HAPROXY_SRC_URL}/${HAPROXY_BRANCH}/src/haproxy-${HAPROXY_MINOR}.tar.gz" -o haproxy.tar.gz && \
-    echo "$HAPROXY_SHA256 *haproxy.tar.gz" | sha256sum -c - && \
+    git clone --branch Branch_v2.5.5 https://github.com/adokukin/haproxy.git /tmp/haproxy && \
     groupadd "$HAPROXY_GID" && \
     useradd -g "$HAPROXY_GID" "$HAPROXY_UID" && \
-    mkdir -p /tmp/haproxy && \
-    tar -xzf haproxy.tar.gz -C /tmp/haproxy --strip-components=1 && \
-    rm -f haproxy.tar.gz && \
     make -C /tmp/haproxy -j"$(nproc)" TARGET=linux-glibc CPU=generic USE_PCRE2=1 USE_PCRE2_JIT=1 USE_OPENSSL=1 \
                             USE_TFO=1 USE_LINUX_TPROXY=1 USE_LUA=1 USE_GETADDRINFO=1 \
                             USE_PROMEX=1 USE_SLZ=1 \
